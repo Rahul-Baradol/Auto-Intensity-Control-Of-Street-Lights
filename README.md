@@ -1,0 +1,1 @@
+# Auto intensity control of a street light
