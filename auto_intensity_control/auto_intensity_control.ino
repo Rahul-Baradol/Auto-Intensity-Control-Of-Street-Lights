@@ -34,8 +34,8 @@ void setup() {
   lcd.begin(16, 2);
 }
 
-const int calibratedMaxLDRValue = 400;
-const int calibratedMinLDRValue = 0;
+int calibratedMaxLDRValue = 900; // 900
+const int calibratedMinLDRValue = 0; // 200
 const int maxBrightnessValue = 255;
 
 void printLDRInputValues(int ldrIn1, int ldrIn2, int ldrIn3, int ldrIn4) {
@@ -108,6 +108,8 @@ void displayLEDPercentage(int led1, int led2, int led3, int led4) {
   lcd.print("%");
 }
 
+int counter = 0;
+
 void loop() {
   // reads analog data from light sensor
   int ldrIn1 = analogRead(ldr1);
@@ -115,15 +117,39 @@ void loop() {
   int ldrIn3 = analogRead(ldr3);
   int ldrIn4 = analogRead(ldr4);
 
+  if (counter <= 10) {
+    if (ldrIn1 < calibratedMaxLDRValue) {
+      calibratedMaxLDRValue = ldrIn1;
+    }
+
+    if (ldrIn2 < calibratedMaxLDRValue) {
+      calibratedMaxLDRValue = ldrIn2;
+    }
+
+    if (ldrIn3 < calibratedMaxLDRValue) {
+      calibratedMaxLDRValue = ldrIn3;
+    }
+
+    if (ldrIn4 < calibratedMaxLDRValue) {
+      calibratedMaxLDRValue = ldrIn4;
+    }
+
+    counter++;
+    return;
+  }
+
   int brightness1 = calculateBrightness(ldrIn1);
   int brightness2 = calculateBrightness(ldrIn2);
   int brightness3 = calculateBrightness(ldrIn3);
   int brightness4 = calculateBrightness(ldrIn4);
 
+  // this is being done because there is no resistor connected to this led
+  const int noResistorBrightness4 = (brightness4 / 255.0) * 25; 
+
   analogWrite(led1, brightness1);
   analogWrite(led2, brightness2);
   analogWrite(led3, brightness3);
-  analogWrite(led4, brightness4);
+  analogWrite(led4, noResistorBrightness4);
 
   printLDRInputValues(ldrIn1, ldrIn2, ldrIn3, ldrIn4);
   printBrightness(brightness1, brightness2, brightness3, brightness4);
